@@ -1,0 +1,97 @@
+- name: Create Azure VM
+  hosts: localhost
+  connection: local
+  collections:
+    - azure.azcollection
+
+  vars: 
+    resource_group: ansible-test-rg
+    virtual_network: ansible-test-vn
+    subnet: ansible-test-subnet
+    security_group: ansible-network-sg
+
+  tasks:
+  - name: Create resource group
+    azure.azcollection.azure_rm_resourcegroup:
+      name: "{{ resource_group }}"
+      location: eastus
+
+  - name: Create virtual network
+    azure.azcollection.azure_rm_virtualnetwork:
+      resource_group: "{{ resource_group }}"
+      name: "{{ virtual_network }}"
+      address_prefixes: "10.0.0.0/16"
+
+  - name: Add subnet
+    azure.azcollection.azure_rm_subnet:
+      resource_group: "{{ resource_group }}"
+      name: "{{ subnet }}"
+      address_prefix: "10.0.1.0/24"
+      virtual_network: "{{ virtual_network }}"
+
+  - name: Create public IP address
+    azure.azcollection.azure_rm_publicipaddress:
+      resource_group: "{{ resource_group }}"
+      allocation_method: Static
+      name: ansible-public-ip
+    register: output_ip_address
+
+  - name: Public IP of VM
+    debug:
+      msg: "The public IP is {{ output_ip_address.state.ip_address }}."
+
+  - name: Create Network Security Group that allows SSH
+    azure.azcollection.azure_rm_securitygroup:
+      resource_group: "{{ resource_group }}"
+      name: "{{ security_group }}"
+      rules:
+        - name: SSH
+          protocol: Tcp
+          destination_port_range: 22
+          access: Allow
+          priority: 1001
+          direction: Inbound
+
+  - name: Create virtual network interface card
+    azure.azcollection.azure_rm_networkinterface:
+      resource_group: "{{ resource_group }}"
+      name: myNIC
+      virtual_network: "{{ virtual_network }}"
+      subnet: "{{ subnet }}"
+      ip_configurations:
+        - public_ip_name: ansible-public-ip
+          name: myAnsibleIPConf
+      security_group: "{{ security_group }}"
+
+  - name: Get facts for all virtual machines of a resource group
+    azure_rm_virtualmachine_info:
+      resource_group: "{{ resource_group }}"
+    register: vminfo 
+
+  - debug:
+      var: vminfo 
+
+  - name: Create VM
+    azure.azcollection.azure_rm_virtualmachine:
+      # accept_terms: true
+      state: present 
+      started: true
+      resource_group: "{{ resource_group }}"
+      name: myVM
+      vm_size: Standard_B1s
+      admin_username: azureuser
+      ssh_password_enabled: false
+      ssh_public_keys:
+        - path: /home/azureuser/.ssh/authorized_keys
+          key_data: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}" 
+      network_interfaces: myNIC
+      managed_disk_type: Standard_LRS
+      image:
+        offer: rhel
+        publisher: redhat
+        sku: 95_gen2
+        version: latest
+      # plan: 
+      #   name: rhel-lvm87 
+      #   product: rhel-byos 
+      #   publisher: redhat 
