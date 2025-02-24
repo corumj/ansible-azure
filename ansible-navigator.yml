@@ -6,7 +6,8 @@ ansible-navigator:
   execution-environment:
     container-engine: podman
     enabled: true
-    image: localhost/ansible-execution-env:latest #registry.redhat.io/ansible-automation-platform-24/ee-supported-rhel9:latest
+    image: localhost/ansible-execution-env:latest 
+    # image: registry.redhat.io/ansible-automation-platform-24/ee-supported-rhel9:latest
     pull:
       policy: missing
     environment-variables:
@@ -20,8 +21,6 @@ ansible-navigator:
         dest: "/Users/jcorum/.ansible.cfg"
   playbook-artifact:
     enable: False
-    replay: /tmp/test_artifact.json
-    save-as: /tmp/test_artifact.json
   logging:
     level: critical
   mode: stdout

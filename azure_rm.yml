@@ -1,0 +1,13 @@
+plugin: azure.azcollection.azure_rm
+
+include_vm_resource_groups:
+  - ansible-test-rg
+  
+plain_host_names: yes
+
+hostnames:
+  - default 
+
+include_host_filters:
+    # includes hosts that in the eastus region and power on
+    - location in ['eastus']

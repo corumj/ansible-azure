@@ -1,0 +1,21 @@
+---
+- name: Generalize VM and create an image 
+  hosts: localhost
+  connection: local
+  gather_facts: false 
+
+  tasks:
+
+    - name: Generalize ansible-test-vm
+      azure.azcollection.azure_rm_virtualmachine:
+        started: true
+        resource_group: "{{ resource_group }}"
+        name: ansible-test-vm
+        state: present 
+        generalized: true 
+
+    - name: Create an image from ansible-test-vm
+      azure_rm_image:
+        resource_group: "{{ resource_group }}"
+        name: ansible-test-vm-image
+        source: ansible-test-vm

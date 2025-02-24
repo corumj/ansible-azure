@@ -1,14 +1,7 @@
-- name: Create Azure VM
+- name: Create ansible-test-vm
   hosts: localhost
   connection: local
-  collections:
-    - azure.azcollection
-
-  vars: 
-    resource_group: ansible-test-rg
-    virtual_network: ansible-test-vn
-    subnet: ansible-test-subnet
-    security_group: ansible-network-sg
+  gather_facts: false 
 
   tasks:
   - name: Create resource group
@@ -29,7 +22,7 @@
       address_prefix: "10.0.1.0/24"
       virtual_network: "{{ virtual_network }}"
 
-  - name: Create public IP address
+  - name: Create public IP address for ansible-test-vm
     azure.azcollection.azure_rm_publicipaddress:
       resource_group: "{{ resource_group }}"
       allocation_method: Static
@@ -38,7 +31,7 @@
 
   - name: Public IP of VM
     debug:
-      msg: "The public IP is {{ output_ip_address.state.ip_address }}."
+      msg: "The public IP for ansible-test-vm is {{ output_ip_address.state.ip_address }}."
 
   - name: Create Network Security Group that allows SSH
     azure.azcollection.azure_rm_securitygroup:
@@ -63,21 +56,11 @@
           name: myAnsibleIPConf
       security_group: "{{ security_group }}"
 
-  - name: Get facts for all virtual machines of a resource group
-    azure_rm_virtualmachine_info:
-      resource_group: "{{ resource_group }}"
-    register: vminfo 
-
-  - debug:
-      var: vminfo 
-
-  - name: Create VM
+  - name: Create ansible-test-vm
     azure.azcollection.azure_rm_virtualmachine:
-      # accept_terms: true
-      state: present 
       started: true
       resource_group: "{{ resource_group }}"
-      name: myVM
+      name: ansible-test-vm
       vm_size: Standard_B1s
       admin_username: azureuser
       ssh_password_enabled: false
@@ -91,7 +74,8 @@
         publisher: redhat
         sku: 95_gen2
         version: latest
-      # plan: 
-      #   name: rhel-lvm87 
-      #   product: rhel-byos 
-      #   publisher: redhat 
+      data_disks:
+        - lun: 5
+          caching: "ReadOnly"
+          disk_size_gb: 64
+          managed_disk_type: Standard_LRS

@@ -1,3 +1,4 @@
 .vscode 
 ansible-navigator.log 
 context/*
+kubeconfig.yml

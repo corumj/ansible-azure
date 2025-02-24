@@ -1,0 +1,54 @@
+--- 
+- name: Stand up AKS and deploy an app 
+  hosts: localhost 
+
+  tasks: 
+    - name: Create resource group
+      azure.azcollection.azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: eastus
+
+    - name: Spin up an AKS cluster
+      azure.azcollection.azure_rm_aks:
+        name: ansible-minimal-cluster
+        kubernetes_version: 1.31.1
+        linux_profile:
+          admin_username: azureuser
+          ssh_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        location: eastus
+        resource_group: "{{ resource_group }}"
+        dns_prefix: akstest
+        agent_pool_profiles:
+          - name: default
+            count: 1
+            vm_size: Standard_B2s
+            enable_auto_scaling: true
+            type: VirtualMachineScaleSets
+            mode: System
+            max_count: 3
+            min_count: 1
+            tags:
+              key1: value1
+          - name: user
+            count: 1
+            vm_size: Standard_D2_v2
+            enable_auto_scaling: true
+            type: VirtualMachineScaleSets
+            mode: User
+            max_count: 3
+            min_count: 1
+
+    - name: Retrieve kubeconfig 
+      azure.azcollection.azure_rm_aks_info:
+        name: ansible-minimal-cluster
+        show_kubeconfig: admin
+        resource_group: "{{ resource_group }}"
+      register: kubeconfig 
+
+    - debug: 
+        var: kubeconfig 
+
+    - name: save kubeconfig 
+      ansible.builtin.copy:
+        content: "{{ kubeconfig.aks[0].kube_config[0] }}"
+        dest: "{{ playbook_dir }}/kubeconfig.yml"

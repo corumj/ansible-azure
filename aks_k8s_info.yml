@@ -1,0 +1,12 @@
+--- 
+- name: Connect to AKS K8s cluster and gather info 
+  hosts: localhost 
+
+  tasks:
+    - name: Get Cluster information
+      kubernetes.core.k8s_cluster_info:
+        kubeconfig: kubeconfig.yml
+      register: api_status
+
+    - debug:
+        var: api_status

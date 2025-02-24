@@ -1,0 +1,7 @@
+---
+resource_group: ansible-test-rg
+virtual_network: ansible-test-vn
+subnet: ansible-test-subnet
+security_group: ansible-network-sg
+
+ansible_user: azureuser

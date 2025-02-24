@@ -1,0 +1,32 @@
+--- 
+- name: Teardown 
+  hosts: localhost 
+  connection: local 
+
+  tasks:
+    - name: Remove ansible-test-rg resource group
+      azure.azcollection.azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        force_delete_nonempty: true
+        location: eastus
+        state: absent
+
+    # - name: Remove ansible-test-vmss
+    #   azure.azcollection.azure_rm_virtualmachinescaleset:
+    #     state: absent 
+    #     name: ansible-test-vmss
+    #     resource_group: ansible-test-rg
+    #     remove_on_absent: all_autocreated
+    #   tags:
+    #     - never 
+    #     - vmss 
+
+    # - name: Remove ansible-test-vm
+    #   azure.azcollection.azure_rm_virtualmachine:
+    #     state: absent 
+    #     name: ansible-test-vm
+    #     resource_group: ansible-test-rg
+    #     remove_on_absent: all_autocreated
+    #   tags:
+    #     - never 
+    #     - vm

@@ -1,0 +1,40 @@
+--- 
+- name: "[Linux] Update all packages"
+  hosts: ansible-test-vm
+  gather_facts: false 
+  become: yes
+
+  vars: 
+    update_packages_skip_reboot: true 
+
+  tasks:
+    - name: Update all packages 
+      ansible.builtin.package:
+        name: '*'
+        state: latest 
+      register: updated_packages 
+      notify: "Packages updated"
+      
+    - name: Check if reboot is requested 
+      ansible.builtin.command: dnf needs-restarting -r 
+      register: result 
+      changed_when: result.rc == 1 
+      failed_when: false 
+      notify: "Reboot requested"
+
+  handlers: 
+    - name: List changes
+      ansible.builtin.debug:
+        msg: "{{ updated_packages.results }}"
+      listen: "Packages updated"
+
+    - name: Reboot if not overridden
+      when: not update_packages_skip_reboot
+      ansible.builtin.reboot:
+      listen: "Reboot requested"
+
+    - name: Message if reboot overridden
+      when: update_packages_skip_reboot
+      ansible.builtin.debug:
+        msg: "Reboot requested for host, but overridden by configuration"
+      listen: "Reboot requested"

@@ -1,0 +1,53 @@
+- name: Create Azure VM scaleset
+  hosts: localhost
+  connection: local
+  gather_facts: false 
+
+  tasks:
+  - name: Create resource group
+    azure.azcollection.azure_rm_resourcegroup:
+      name: "{{ resource_group }}"
+      location: eastus
+
+  - name: Create virtual network
+    azure.azcollection.azure_rm_virtualnetwork:
+      resource_group: "{{ resource_group }}"
+      name: "{{ virtual_network }}"
+      address_prefixes: "10.0.0.0/16"
+
+  - name: Add subnet
+    azure.azcollection.azure_rm_subnet:
+      resource_group: "{{ resource_group }}"
+      name: "{{ subnet }}"
+      address_prefix: "10.0.1.0/24"
+      virtual_network: "{{ virtual_network }}"
+
+  - name: Create VMs
+    azure.azcollection.azure_rm_virtualmachinescaleset:
+      state: present 
+      resource_group: "{{ resource_group }}"
+      security_group: "{{ security_group }}"
+      name: ansible-test-vmss
+      vm_size: Standard_B1s
+      capacity: 2
+      virtual_network_name: "{{ virtual_network }}"
+      upgrade_policy: Manual
+      subnet_name: "{{ subnet }}"
+      terminate_event_timeout_minutes: 10
+      scale_in_policy: NewestVM
+      admin_username: azureuser
+      ssh_password_enabled: false
+      ssh_public_keys:
+        - path: /home/azureuser/.ssh/authorized_keys
+          key_data: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}" 
+      managed_disk_type: Standard_LRS
+      image:
+        offer: rhel
+        publisher: redhat
+        sku: 95_gen2
+        version: latest
+      data_disks:
+        - lun: 0
+          disk_size_gb: 64
+          caching: ReadWrite
+          managed_disk_type: Standard_LRS
