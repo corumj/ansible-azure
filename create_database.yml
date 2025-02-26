@@ -1,0 +1,71 @@
+--- 
+- name: Create Azure PostgreSQL Flexible Database 
+  hosts: localhost 
+
+  tasks:
+
+    - name: Create resource group
+      azure.azcollection.azure_rm_resourcegroup:
+        name: "{{ resource_group }}"
+        location: eastus
+
+    - name: Create (or update) PostgreSQL Flexible Server
+      azure.azcollection.azure_rm_postgresqlflexibleserver:
+        resource_group: "{{ resource_group }}"
+        name: aapdbserver
+        sku:
+          name: Standard_B1ms
+          tier: Burstable
+        administrator_login: azureuser
+        administrator_login_password: "{{ password }}"
+        version: 15
+        storage:
+          storage_size_gb: 128
+        #fully_qualified_domain_name: st-private-dns-zone.postgres.database.azure.com
+        backup:
+          backup_retention_days: 7
+          geo_redundant_backup: Disabled
+        maintenance_window:
+          custom_window: Enabled
+          start_hour: 8
+          start_minute: 0
+          day_of_week: 0
+        # point_in_time_utc: 2023-05-31T00:28:17.7279547+00:00
+        # availability_zone: 1
+        create_mode: Default
+
+    - name: Create AAP Postgresql dbs 
+      azure.azcollection.azure_rm_postgresqlflexibledatabase:
+        resource_group: "{{ resource_group }}"
+        server_name: aapdbserver 
+        name: "{{ item }}" 
+        charset: UTF8 
+        collation: en_US.utf8 
+        state: present 
+      loop:
+        - controller 
+        - hub 
+        - eda 
+        - gateway 
+
+    - name: Create (or update) PostgreSQL flexible firewall rule
+      azure.azcollection.azure_rm_postgresqlflexiblefirewallrule:
+        state: present
+        resource_group: "{{ resource_group }}"
+        server_name: aapdbserver
+        name: aws-azure-aap-db
+        start_ip_address: 3.142.185.68
+        end_ip_address: 3.142.185.68 # my current AAP instance IP Address
+
+    - name: Enable hstore extension 
+      community.postgresql.postgresql_query:
+        db: "{{ item }}"
+        query: "CREATE EXTENSION hstore;"
+        login_host: aapdbserver.postgres.database.azure.com
+        login_user: azureuser
+        login_password: "{{ password }}"
+      loop:
+        - controller 
+        - hub 
+        - eda 
+        - gateway 
