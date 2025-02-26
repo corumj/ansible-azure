@@ -1,5 +1,5 @@
 --- 
-- name: Stand up AKS and deploy an app 
+- name: Stand up AKS and retrieve kubeconfig 
   hosts: localhost 
 
   tasks: 
