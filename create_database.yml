@@ -57,6 +57,8 @@
         start_ip_address: 3.142.185.68
         end_ip_address: 3.142.185.68 # my current AAP instance IP Address
 
+## Must add hstore to extension allowlist via Azure web console first
+
     - name: Enable hstore extension 
       community.postgresql.postgresql_query:
         db: "{{ item }}"
