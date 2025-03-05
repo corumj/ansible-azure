@@ -20,7 +20,7 @@
         administrator_login_password: "{{ password }}"
         version: 15
         storage:
-          storage_size_gb: 128
+          storage_size_gb: 40
         #fully_qualified_domain_name: st-private-dns-zone.postgres.database.azure.com
         backup:
           backup_retention_days: 7
@@ -33,6 +33,7 @@
         # point_in_time_utc: 2023-05-31T00:28:17.7279547+00:00
         # availability_zone: 1
         create_mode: Default
+      register: flexible_pg_server
 
     - name: Create AAP Postgresql dbs 
       azure.azcollection.azure_rm_postgresqlflexibledatabase:
@@ -48,16 +49,38 @@
         - eda 
         - gateway 
 
+    - name: Get current public IP address for firewall rule 
+      ansible.builtin.uri:
+        url: https://api.ipify.org?format=json 
+      register: public_ip 
+
     - name: Create (or update) PostgreSQL flexible firewall rule
       azure.azcollection.azure_rm_postgresqlflexiblefirewallrule:
         state: present
         resource_group: "{{ resource_group }}"
         server_name: aapdbserver
-        name: aws-azure-aap-db
-        start_ip_address: 3.142.185.68
-        end_ip_address: 3.142.185.68 # my current AAP instance IP Address
+        name: home-to-azure-aap-db
+        start_ip_address: "{{ public_ip.json.ip }}"
+        end_ip_address: "{{ public_ip.json.ip }}" # my current AAP instance IP Address
 
-## Must add hstore to extension allowlist via Azure web console first
+    - name: Get list of enabled extensions
+      azure.azcollection.azure_rm_resource_info:
+        provider: DBforPostgreSQL
+        resource_group: "{{ resource_group }}"
+        resource_name: aapdbserver/configurations/azure.extensions
+        resource_type: flexibleServers
+        api_version: "2022-12-01"
+      register: postgresql_info
+
+    - name: Enable extensions
+      azure.azcollection.azure_rm_resource:
+        idempotency: true
+        provider: DBforPostgreSQL
+        resource_group: "{{ resource_group }}"
+        resource_name: aapdbserver/configurations/azure.extensions
+        resource_type: flexibleServers
+        body: "{{ postgresql_info.response[0] |
+          combine({'properties': {'value': (infrastructure_database_extensions | default('') | join(',')), 'source': 'user-override'}}) }}"
 
     - name: Enable hstore extension 
       community.postgresql.postgresql_query:
