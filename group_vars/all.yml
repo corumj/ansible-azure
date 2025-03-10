@@ -5,3 +5,6 @@ subnet: ansible-test-subnet
 security_group: ansible-network-sg
 
 ansible_user: azureuser
+
+infrastructure_database_extensions:
+  - hstore
