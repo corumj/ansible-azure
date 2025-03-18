@@ -1,0 +1,20 @@
+--- 
+- name: Set system level environment variable 
+  hosts: all 
+  gather_facts: no 
+
+  vars:
+    ansible_psrp_auth: ntlm 
+    ansible_connection: psrp 
+    ansible_user: ""
+    ansible_password: ""
+    ansible_port: 5985
+
+  tasks:
+
+    - name: Set TEST_VAR env variable at the system level 
+      ansible.windows.win_environment:
+        state: present 
+        level: machine 
+        name: TEST_VAR 
+        value: hashicorp://LApizzaisnasty
