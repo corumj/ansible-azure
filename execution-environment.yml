@@ -15,11 +15,26 @@ dependencies:
       - { name: community.postgresql, version: 3.10.2 }
       - { name: kubernetes.core, version: 5.1.0 }
       - { name: ansible.posix, version: 1.6.2 }
+      - { name: ansible.windows, version: 2.8.0 }
+      - { name: cloud.terraform, version: 3.0.0 }
   python:
     - awscli>=1.16.312
+    - passlib
+    - pywinrm>=0.3.0
+
   exclude:
     system:
       - openshift-clients
-      
+
+additional_build_steps:
+  prepend_base:
+    - RUN $PYCMD -m pip install --upgrade pip setuptools
+  append_base:
+    - RUN curl "https://releases.hashicorp.com/terraform/1.10.4/terraform_1.10.4_linux_amd64.zip" -o "/terraform.zip"
+    - RUN unzip /terraform.zip -d /terraform
+    - RUN mv /terraform/terraform /bin
+    
 options:
   package_manager_path: /usr/bin/microdnf
+  tags:
+      - gateway.sandbox3281.opentlc.com/azure_ee:1.6
