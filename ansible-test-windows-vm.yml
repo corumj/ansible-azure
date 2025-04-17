@@ -1,0 +1,102 @@
+- name: Create ansible-test-vm
+  hosts: localhost
+  connection: local
+  gather_facts: false 
+
+  tasks:
+  - name: Create resource group
+    azure.azcollection.azure_rm_resourcegroup:
+      name: "{{ resource_group }}"
+      location: eastus
+
+  - name: Create virtual network
+    azure.azcollection.azure_rm_virtualnetwork:
+      resource_group: "{{ resource_group }}"
+      name: "{{ virtual_network }}"
+      address_prefixes: "10.0.0.0/16"
+
+  - name: Add subnet
+    azure.azcollection.azure_rm_subnet:
+      resource_group: "{{ resource_group }}"
+      name: "{{ subnet }}"
+      address_prefix: "10.0.1.0/24"
+      virtual_network: "{{ virtual_network }}"
+
+  - name: Create public IP address for ansible-test-windows-vm
+    azure.azcollection.azure_rm_publicipaddress:
+      resource_group: "{{ resource_group }}"
+      allocation_method: Static
+      name: ansible-public-windows-ip
+    register: output_ip_address
+
+  - name: Public IP of VM
+    debug:
+      msg: "The public IP for ansible-test-windows-vm is {{ output_ip_address.state.ip_address }}."
+
+  - name: Create Network Security Group that allows SSH
+    azure.azcollection.azure_rm_securitygroup:
+      resource_group: "{{ resource_group }}"
+      name: "{{ security_group }}"
+      rules:
+        - name: 'allow_rdp'
+          protocol: Tcp
+          destination_port_range: 3389
+          access: Allow
+          priority: 1001
+          direction: Inbound
+        - name: 'allow_web_traffic'
+          protocol: Tcp
+          destination_port_range:
+            - 80
+            - 443
+          access: Allow
+          priority: 1002
+          direction: Inbound
+        - name: 'allow_powershell_remoting'
+          protocol: Tcp
+          destination_port_range: 
+            - 5985
+            - 5986
+          access: Allow
+          priority: 1003
+          direction: Inbound
+
+  - name: Create virtual network interface card
+    azure.azcollection.azure_rm_networkinterface:
+      resource_group: "{{ resource_group }}"
+      name: windowsNIC
+      virtual_network: "{{ virtual_network }}"
+      subnet: "{{ subnet }}"
+      ip_configurations:
+        - public_ip_name: ansible-public-windows-ip
+          name: myAnsibleWindowsIPConf
+      security_group: "{{ security_group }}"
+
+  - name: Create ansible-test-vm
+    azure.azcollection.azure_rm_virtualmachine:
+      started: true
+      resource_group: "{{ resource_group }}"
+      name: test-win-vm
+      vm_size: Standard_B1s
+      admin_username: azureuser
+      admin_password: "{{ password }}"
+      network_interfaces: windowsNIC
+      managed_disk_type: Standard_LRS
+      os_disk_size_gb: 127
+      os_type: Windows
+      winrm:
+        - protocol: http 
+      image:
+        offer: WindowsServer
+        publisher: MicrosoftWindowsServer
+        sku: 2019-Datacenter
+        version: latest
+      data_disks:
+        - lun: 60
+          caching: "ReadOnly"
+          disk_size_gb: 50
+          managed_disk_type: Standard_LRS
+    register: ansible_windows_vm 
+
+  - name: refresh dynamic inventory 
+    ansible.builtin.meta: refresh_inventory
