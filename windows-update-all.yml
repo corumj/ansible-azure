@@ -1,0 +1,9 @@
+--- 
+- name: Test Windows Connection
+  hosts: all 
+
+  tasks:
+    - name: Run updates 
+      ansible.windows.win_updates:
+        category_names: '*'
+        reboot: false 
