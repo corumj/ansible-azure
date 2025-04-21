@@ -1,6 +1,6 @@
 --- 
 - name: "[Linux] Update all packages"
-  hosts: ansible-test-vm
+  hosts: all
   gather_facts: false 
   become: yes
 
