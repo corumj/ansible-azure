@@ -149,6 +149,9 @@
         ftype: "a"
         state: present 
 
+    - name: Run restore context to reload selinux
+      shell: restorecon -R "/ansible"
+
     - name: Enable password authentication 
       ansible.builtin.lineinfile:
         path: /etc/ssh/sshd_config.d/50-cloud-init.conf
