@@ -1,0 +1,10 @@
+--- 
+- name: Control Azure Virtual Machine Power State 
+  hosts: localhost 
+
+  tasks:
+    - name: Power on {{ powerstate | default(true) }}
+      azure_rm_virtualmachine:
+        resource_group: "{{ resource_group }}"
+        name: jpc-win2019-vm
+        started: "{{ powerstate | default(true) }}"
