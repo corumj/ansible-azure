@@ -6,8 +6,6 @@
   vars:
     ansible_psrp_auth: ntlm 
     ansible_connection: psrp 
-    ansible_user: ""
-    ansible_password: ""
     ansible_port: 5985
 
   tasks:

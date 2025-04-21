@@ -1,6 +1,10 @@
 --- 
 - name: Install Crowdstrike
   hosts: all 
+  vars:
+    ansible_winrm_transport: ntlm
+    ansible_connection: winrm
+    ansible_port: 5985
 
   tasks:
     - name: Run updates 

@@ -1,8 +1,12 @@
 --- 
 - name: Test Windows connection
-  hosts: all 
+  hosts: test-win-vm
   gather_facts: no 
-
+  vars:
+    ansible_winrm_transport: ntlm
+    ansible_connection: winrm
+    ansible_port: 5985
+    
   tasks:
     - name: windows ping 
       ansible.windows.win_ping:
