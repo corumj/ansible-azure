@@ -1,9 +1,9 @@
 --- 
-- name: Run Windows Updates
+- name: Install Crowdstrike
   hosts: all 
 
   tasks:
     - name: Run updates 
       ansible.windows.win_updates:
         category_names: '*'
-        reboot: true 
+        reboot: "{{ reboot }}"
