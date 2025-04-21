@@ -25,6 +25,7 @@ dependencies:
     - awscli>=1.16.312
     - passlib
     - pywinrm>=0.3.0
+    - azure
   system:
     - unzip [platform:rpm]
 
