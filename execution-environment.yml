@@ -3,9 +3,13 @@ version: 3
 
 images:
   base_image:
-    name: registry.redhat.io/ansible-automation-platform/ee-minimal-rhel9@sha256:c6617b6b711eeab20b4b31a5259eac58d5244cd8f7b8ccb149847719677ee18f
+    name: registry.redhat.io/ansible-automation-platform-25/ansible-python-base-rhel8@sha256:a2b9b4b0087e9d393978c24f7a5ad87a98248f11ea1d822e30420198d264410e
 
 dependencies:
+  ansible_core:
+    package_pip: ansible-core==2.17.2
+  ansible_runner:
+    package_pip: ansible-runner==2.3.6
   galaxy:
     collections:
       - { name: amazon.aws, version: 9.2.0 }
@@ -21,6 +25,8 @@ dependencies:
     - awscli>=1.16.312
     - passlib
     - pywinrm>=0.3.0
+  system:
+    - unzip [platform:rpm]
 
   exclude:
     system:
@@ -29,12 +35,16 @@ dependencies:
 additional_build_steps:
   prepend_base:
     - RUN $PYCMD -m pip install --upgrade pip setuptools
+    - RUN /usr/bin/microdnf install unzip
   append_base:
     - RUN curl "https://releases.hashicorp.com/terraform/1.10.4/terraform_1.10.4_linux_amd64.zip" -o "/terraform.zip"
     - RUN unzip /terraform.zip -d /terraform
     - RUN mv /terraform/terraform /bin
+
+  append_final:
+    - RUN $PYCMD -m pip install -r /usr/share/ansible/collections/ansible_collections/azure/azcollection/requirements.txt
     
 options:
   package_manager_path: /usr/bin/microdnf
   tags:
-      - gateway.sandbox3281.opentlc.com/azure_ee:1.6
+      - aap.aj.peripatetic.us/azure_ee:2.0
