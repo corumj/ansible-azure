@@ -1,5 +1,7 @@
 - name: Create ansible-test-windows-vm
   hosts: localhost
+  connection: ansible.builtin.local 
+  
   gather_facts: false 
 
   tasks:
