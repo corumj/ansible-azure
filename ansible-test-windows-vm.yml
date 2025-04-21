@@ -1,8 +1,10 @@
 - name: Create ansible-test-windows-vm
   hosts: localhost
-  connection: containers.podman.podman
 
   gather_facts: false 
+
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
 
   tasks:
   - name: Create resource group
