@@ -1,5 +1,5 @@
-- name: Create ansible-test-vm
-  hosts: localhost
+- name: Create ansible-test-windows-vm
+  hosts: aap
   gather_facts: false 
 
   tasks:
