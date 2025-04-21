@@ -1,6 +1,6 @@
 - name: Create ansible-test-windows-vm
   hosts: localhost
-  # connection: ansible.builtin.local 
+  connection: containers.podman.podman
 
   gather_facts: false 
 
