@@ -1,6 +1,5 @@
 - name: Create ansible-test-vm
   hosts: localhost
-  connection: local
   gather_facts: false 
 
   tasks:
