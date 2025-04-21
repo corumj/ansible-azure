@@ -17,7 +17,7 @@ dependencies:
       - { name: community.postgresql, version: 3.10.2 }
       - { name: ansible.posix, version: 1.6.2 }
       - { name: ansible.windows, version: 2.8.0 }
-      - { name: cloud.terraform, version: 3.0.0 }
+
   python:
     - passlib
     - pywinrm>=0.3.0
@@ -28,21 +28,10 @@ dependencies:
     - azure-keyvault-secrets
     - azure-storage-blob
 
-  system:
-    - unzip [platform:rpm]
-
-  exclude:
-    system:
-      - openshift-clients
-
 additional_build_steps:
   prepend_base:
     - RUN $PYCMD -m pip install --upgrade pip setuptools
     - RUN /usr/bin/microdnf install unzip
-  append_base:
-    - RUN curl "https://releases.hashicorp.com/terraform/1.10.4/terraform_1.10.4_linux_amd64.zip" -o "/terraform.zip"
-    - RUN unzip /terraform.zip -d /terraform
-    - RUN mv /terraform/terraform /bin
 
 options:
   package_manager_path: /usr/bin/microdnf
