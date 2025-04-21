@@ -6,7 +6,7 @@ ansible-navigator:
   execution-environment:
     container-engine: podman
     enabled: true
-    image: quay.io/jerrycorum/azure_ee:1.0
+    image: quay.io/jerrycorum/cloud_ee:1.0
     # image: registry.redhat.io/ansible-automation-platform-24/ee-supported-rhel9:latest
     pull:
       policy: missing
