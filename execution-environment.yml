@@ -4,7 +4,7 @@ version: 3
 images:
   base_image:
     name: registry.redhat.io/ansible-automation-platform-25/ansible-python-base-rhel8@sha256:a2b9b4b0087e9d393978c24f7a5ad87a98248f11ea1d822e30420198d264410e
-
+    # name: registry.redhat.io/ansible-automation-platform/ee-minimal-rhel9@sha256:c6617b6b711eeab20b4b31a5259eac58d5244cd8f7b8ccb149847719677ee18f
 dependencies:
   ansible_core:
     package_pip: ansible-core==2.17.2
@@ -12,20 +12,22 @@ dependencies:
     package_pip: ansible-runner==2.3.6
   galaxy:
     collections:
-      - { name: amazon.aws, version: 9.2.0 }
       - { name: azure.azcollection, version: 3.2.0 }
-      - { name: community.aws, version: 9.0.0 }
       - { name: community.general, version: 10.3.0 }
       - { name: community.postgresql, version: 3.10.2 }
-      - { name: kubernetes.core, version: 5.1.0 }
       - { name: ansible.posix, version: 1.6.2 }
       - { name: ansible.windows, version: 2.8.0 }
       - { name: cloud.terraform, version: 3.0.0 }
   python:
-    - awscli>=1.16.312
     - passlib
     - pywinrm>=0.3.0
-    - azure
+    - azure-mgmt-compute
+    - azure-mgmt-storage
+    - azure-mgmt-resource
+    - azure-mgmt-resourcehealth
+    - azure-keyvault-secrets
+    - azure-storage-blob
+
   system:
     - unzip [platform:rpm]
 
@@ -42,10 +44,7 @@ additional_build_steps:
     - RUN unzip /terraform.zip -d /terraform
     - RUN mv /terraform/terraform /bin
 
-  append_final:
-    - RUN $PYCMD -m pip install -r /usr/share/ansible/collections/ansible_collections/azure/azcollection/requirements.txt
-    
 options:
   package_manager_path: /usr/bin/microdnf
   tags:
-      - aap.aj.peripatetic.us/azure_ee:2.0
+      - aap.aj.peripatetic.us/azure_ee:2.1
