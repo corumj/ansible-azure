@@ -1,6 +1,9 @@
 - name: Create ansible-test-windows-vm
   hosts: localhost
 
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.11
+
   gather_facts: false 
 
   tasks:
