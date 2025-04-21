@@ -3,9 +3,6 @@
 
   gather_facts: false 
 
-  vars:
-    ansible_python_interpreter: /usr/bin/python3.11
-
   tasks:
   - name: Create resource group
     azure.azcollection.azure_rm_resourcegroup:
