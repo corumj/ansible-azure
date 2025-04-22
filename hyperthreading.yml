@@ -1,0 +1,9 @@
+--- 
+- name: Check if hyperthreading is enabled 
+  hosts: all 
+
+  tasks: 
+    - name: Print out facts 
+      ansible.builtin.debug:
+        msg: 
+          - "Hyperthreading is enabled: {{ ansible_facts.processor_threads_per_core > 1 }}" 
