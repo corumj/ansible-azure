@@ -1,7 +1,11 @@
 --- 
 - name: Check if hyperthreading is enabled 
   hosts: all 
-
+  vars:
+    ansible_winrm_transport: ntlm
+    ansible_connection: winrm
+    ansible_port: 5985
+    
   tasks: 
     - name: Print out facts 
       ansible.builtin.debug:
