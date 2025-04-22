@@ -10,12 +10,12 @@
       azure.azcollection.azure_rm_virtualmachine:
         started: true
         resource_group: "{{ resource_group }}"
-        name: ansible-test-vm
+        name: "{{ vm_name }}"
         state: present 
         generalized: true 
 
     - name: Create an image from ansible-test-vm
       azure_rm_image:
         resource_group: "{{ resource_group }}"
-        name: ansible-test-vm-image
-        source: ansible-test-vm
+        name: "{{ ansible_image_name }}"
+        source: "{{ vm_name }}"
