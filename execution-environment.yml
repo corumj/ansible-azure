@@ -3,7 +3,9 @@ version: 3
 
 images:
   base_image:
-    name: registry.redhat.io/ansible-automation-platform-25/ansible-python-base-rhel8@sha256:a2b9b4b0087e9d393978c24f7a5ad87a98248f11ea1d822e30420198d264410e
+    # name: registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9@sha256:2a04708a02d2bf5b549bb0da9a1dfe156fd773af41098a77b5cc435b27d88c44
+    name: registry.redhat.io/ansible-automation-platform-25/ansible-python-base-rhel9@sha256:109b058d0d367699bcc5ddce27cb820e0f82eb111b51ed768ed67a88ae0880f0
+    # name: registry.redhat.io/ansible-automation-platform-25/ansible-python-base-rhel8@sha256:a2b9b4b0087e9d393978c24f7a5ad87a98248f11ea1d822e30420198d264410e
     # name: registry.redhat.io/ansible-automation-platform/ee-minimal-rhel9@sha256:c6617b6b711eeab20b4b31a5259eac58d5244cd8f7b8ccb149847719677ee18f
 dependencies:
   ansible_core:
@@ -31,7 +33,7 @@ dependencies:
 additional_build_steps:
   prepend_base:
     - RUN $PYCMD -m pip install --upgrade pip setuptools
-    - RUN /usr/bin/microdnf install unzip
+    - RUN /usr/bin/microdnf install unzip -y
 
 options:
   package_manager_path: /usr/bin/microdnf
