@@ -9,5 +9,9 @@
   tasks:
     - name: Run updates 
       ansible.windows.win_updates:
-        category_names: '*'
+        category_names:
+          - SecurityUpdates
         reboot: "{{ reboot }}"
+      become: true
+      become_method: runas
+      become_user: SYSTEM
