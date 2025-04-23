@@ -25,7 +25,7 @@
       azure.azcollection.azure_rm_publicipaddress:
         resource_group: "{{ resource_group }}"
         allocation_method: Static
-        name: ansible-public-ip
+        name: "{{ public_ip_nic }}"
       register: output_ip_address
 
     - name: Public IP of VM
@@ -37,21 +37,37 @@
         resource_group: "{{ resource_group }}"
         name: "{{ security_group }}"
         rules:
-          - name: SSH
-            protocol: Tcp
-            destination_port_range: 22
-            access: Allow
-            priority: 1001
-            direction: Inbound
+        - name: 'allow_rdp'
+          protocol: Tcp
+          destination_port_range: 3389
+          access: Allow
+          priority: 1001
+          direction: Inbound
+        - name: 'allow_web_traffic'
+          protocol: Tcp
+          destination_port_range:
+            - 80
+            - 443
+          access: Allow
+          priority: 1002
+          direction: Inbound
+        - name: 'allow_powershell_remoting'
+          protocol: Tcp
+          destination_port_range: 
+            - 5985
+            - 5986
+          access: Allow
+          priority: 1003
+          direction: Inbound
 
     - name: Create virtual network interface card
       azure.azcollection.azure_rm_networkinterface:
         resource_group: "{{ resource_group }}"
-        name: myNIC
+        name: "{{ nic_name }}"
         virtual_network: "{{ virtual_network }}"
         subnet: "{{ subnet }}"
         ip_configurations:
-          - public_ip_name: ansible-public-ip
+          - public_ip_name: "{{ public_ip_nic }}"
             name: myAnsibleIPConf
         security_group: "{{ security_group }}"
 
@@ -59,15 +75,15 @@
       azure.azcollection.azure_rm_virtualmachine:
         started: true
         resource_group: "{{ resource_group }}"
-        name: ansible-test-image-vm
+        name: "{{ vm_name }}"
         vm_size: Standard_B1s
         admin_username: azureuser
-        ssh_password_enabled: false
-        ssh_public_keys:
-          - path: /home/azureuser/.ssh/authorized_keys
-            key_data: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}" 
-        network_interfaces: myNIC
+        admin_password: "{{ password }}"
+        os_type: Windows
+        winrm:
+          - protocol: http 
+        network_interfaces: "{{ nic_name }}"
         managed_disk_type: Standard_LRS
         image: 
-          name: ansible-test-vm-image
+          name: Goldenimage
           resource_group: "{{ resource_group }}"
