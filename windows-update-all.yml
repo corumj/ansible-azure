@@ -12,6 +12,8 @@
         category_names:
           - SecurityUpdates
         reboot: "{{ reboot }}"
+        reject_list:
+          - KB2267602
       become: true
       become_method: runas
       become_user: SYSTEM
