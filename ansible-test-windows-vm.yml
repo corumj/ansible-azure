@@ -80,7 +80,7 @@
       started: true
       resource_group: "{{ resource_group }}"
       name: test-win-vm
-      vm_size: Standard_B1s
+      vm_size: Standard_B2ms
       admin_username: azureuser
       admin_password: "{{ password }}"
       network_interfaces: windowsNIC
