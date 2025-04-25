@@ -1,5 +1,5 @@
 --- 
-- name: Install Crowdstrike
+- name: Install Windows Updates
   hosts: all 
   vars:
     ansible_winrm_transport: ntlm
@@ -11,7 +11,7 @@
       ansible.windows.win_updates:
         category_names:
           - SecurityUpdates
-        reboot: "{{ reboot }}"
+        reboot: "{{ reboot | default('False') }}"
         reject_list:
           - KB2267602
       become: true
