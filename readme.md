@@ -19,15 +19,10 @@
 6) Terraform with Ansible - with AAP provider and without
     - tf.main.check.yml - spins up 2 instances, one with and one without the tf AAP provider to push new resources into AAP's inventory
 
+## Running these demos 
+You'll need to build the included execution environemnt from the execution-environment.yml file, as well as export your Azure credentials as specific environment variables listed in ansible-navigator.yml under the environment-variables section.
 
-
-
-
-
-
-
-
-## Backup Testing 
+## Backup Testing (work in progress)
 1. Run either `ansible-test-rhel-vm.yml` to create a RHEL system we can backup 
 2. Run `backup-create-policy.yml` to create a backup vault and backup policy
 3. Run `backup-on-demand.yml` to backup ansible-test-rhel-vm, this will take over 30 minutes
